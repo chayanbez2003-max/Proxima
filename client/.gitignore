@@ -1,0 +1,17 @@
+# client/.gitignore
+#
+# Rules here apply relative to the client/ directory.
+# Root-level .gitignore (c:\Proxima\.gitignore) already handles:
+#   - node_modules, .env, dist, logs, OS files, editor configs
+#
+# Add client-specific rules below only if they are NOT already
+# covered by the root .gitignore.
+
+# Storybook
+storybook-static/
+
+# Playwright / Cypress test artifacts
+test-results/
+playwright-report/
+cypress/videos/
+cypress/screenshots/

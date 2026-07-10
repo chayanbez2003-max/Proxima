@@ -1,0 +1,112 @@
+# ==================================================
+# Proxima AI — Root .gitignore
+# Monorepo: client/ (React/Vite) + server/ (Node/Express)
+# ==================================================
+
+# --------------------------------------------------
+# Environment & Secrets  ← NEVER commit these
+# --------------------------------------------------
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development.local
+.env.test.local
+
+# Gemini / AI API keys
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+
+# --------------------------------------------------
+# Node.js — Dependencies
+# --------------------------------------------------
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# --------------------------------------------------
+# Client (React + Vite)
+# --------------------------------------------------
+client/dist/
+client/dist-ssr/
+client/build/
+client/out/
+client/.next/
+client/.cache/
+client/coverage/
+
+# Vite generated
+client/stats.html
+
+# --------------------------------------------------
+# Server (Express + Node.js)
+# --------------------------------------------------
+server/dist/
+server/build/
+server/out/
+
+# Uploaded temp files — never commit user data
+server/uploads/temp/
+
+# Log files produced by the server
+server/logs/
+server/*.log
+
+# --------------------------------------------------
+# Logs (global)
+# --------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --------------------------------------------------
+# OS generated
+# --------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# --------------------------------------------------
+# Editors & IDEs
+# --------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# --------------------------------------------------
+# Testing & Coverage
+# --------------------------------------------------
+coverage/
+.nyc_output/
+*.lcov
+
+# --------------------------------------------------
+# Misc build artifacts
+# --------------------------------------------------
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+*.local
