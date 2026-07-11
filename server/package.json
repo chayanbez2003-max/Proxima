@@ -8,10 +8,15 @@
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
-  "keywords": ["resume", "analyzer", "mern"],
+  "keywords": [
+    "resume",
+    "analyzer",
+    "mern"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@clerk/express": "^2.1.39",
     "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",

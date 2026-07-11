@@ -13,10 +13,21 @@ import { ANALYSIS_STATUS, PROCESSING_STATUS } from "../config/constants.js";
  *  ✅  M1 — Upload (originalFileName, uploadedAt, status, selectedRole, processingStatus)
  *  ✅  M2 — Parsing (extractedText, candidateName, email, phone, github, linkedin, location, education, experience)
  *  ✅  M3 — Career Intelligence (extractedSkills, matchedSkills, missingSkills, extraSkills, matchPercentage)
+ *  ✅  M-Auth — Authentication (clerkId — user isolation)
  *  🔜  M4 — Recommendations (recommendations)
  */
 const AnalysisSchema = new Schema(
   {
+    // ── Authentication (M-Auth) ──────────────────────────
+    // Clerk user ID — links this analysis to exactly one authenticated user.
+    // Required on all new documents. Future queries always filter by clerkId.
+    clerkId: {
+      type:     String,
+      required: [true, "clerkId is required"],
+      trim:     true,
+      index:    true,
+    },
+
     // ── Core upload fields (M1) ──────────────────────────
     originalFileName: {
       type:     String,
@@ -131,6 +142,9 @@ const AnalysisSchema = new Schema(
 // Index for querying analyses by status efficiently
 AnalysisSchema.index({ status: 1 });
 AnalysisSchema.index({ createdAt: -1 });
+// Compound index: fast per-user queries sorted by newest
+AnalysisSchema.index({ clerkId: 1, createdAt: -1 });
+
 
 const Analysis = mongoose.model("Analysis", AnalysisSchema);
 

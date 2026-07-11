@@ -2,9 +2,10 @@ import express  from "express";
 import cors     from "cors";
 import morgan   from "morgan";
 import helmet   from "helmet";
-import corsOptions       from "./config/corsOptions.js";
-import apiRouter         from "./routes/index.js";
-import { globalErrorHandler } from "./middleware/error.middleware.js";
+import corsOptions              from "./config/corsOptions.js";
+import apiRouter                from "./routes/index.js";
+import { globalErrorHandler }  from "./middleware/error.middleware.js";
+import { clerkAuthMiddleware } from "./middleware/auth.middleware.js";
 
 /**
  * app.js
@@ -17,8 +18,10 @@ const app = express();
 // ── Core middleware ────────────────────────────────────────
 app.use(helmet()); // Security headers (X-Content-Type-Options, HSTS, etc.)
 app.use(cors(corsOptions));
+app.use(clerkAuthMiddleware); // Parses Clerk session tokens on every request
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+
 
 // HTTP request logger (dev = colourised, production = combined)
 if (process.env.NODE_ENV === "development") {

@@ -20,11 +20,20 @@ const axiosInstance = axios.create({
 });
 
 // ── Request interceptor ────────────────────────────────────
-// Future (M-Auth): Attach JWT token here.
+// M-Auth: Attach Clerk session JWT to every request.
+// window.Clerk is set globally by ClerkProvider when the app mounts.
+// This pattern avoids needing React hooks inside a non-component file.
 axiosInstance.interceptors.request.use(
-  (config) => {
-    // TODO (M-Auth): const token = localStorage.getItem("token");
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    try {
+      const token = await window.Clerk?.session?.getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch {
+      // If Clerk is not yet ready (e.g. during SSR or pre-mount),
+      // proceed without a token — the server will return 401.
+    }
     return config;
   },
   (error) => Promise.reject(error)

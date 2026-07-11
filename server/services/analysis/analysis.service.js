@@ -7,8 +7,8 @@ import { parseResume }            from "../parser/resumeParser.service.js";
 /**
  * uploadResumeService
  *
- * Milestone 1 + 2 pipeline:
- *  1. Create an Analysis document (status: "uploaded").
+ * Milestone 1 + 2 + M-Auth pipeline:
+ *  1. Create an Analysis document with the authenticated user's clerkId.
  *  2. Extract plain text from the PDF          [M2]
  *  3. Parse structured information             [M2]
  *  4. Update the Analysis document in MongoDB  [M2]
@@ -18,14 +18,16 @@ import { parseResume }            from "../parser/resumeParser.service.js";
  * @param {Object} fileInfo            - req.file from Multer
  * @param {string} fileInfo.path       - Absolute path to temp file
  * @param {string} fileInfo.originalname
+ * @param {string} clerkId             - Authenticated user's Clerk ID (from req.auth.userId)
  * @param {string} [selectedRole]      - Job role selected by the user
  * @returns {Promise<Object>}          Updated Analysis document
  */
-const uploadResumeService = async (fileInfo, selectedRole = null) => {
+const uploadResumeService = async (fileInfo, clerkId, selectedRole = null) => {
   const { path: filePath, originalname } = fileInfo;
 
   // ── Step 1: Create the upload record ───────────────────────────────────────
   const analysis = await Analysis.create({
+    clerkId,                           // M-Auth: user isolation
     originalFileName: originalname,
     selectedRole:     selectedRole || null,
     status:           ANALYSIS_STATUS.UPLOADED,
@@ -77,4 +79,23 @@ const uploadResumeService = async (fileInfo, selectedRole = null) => {
   return { analysis, parsedData: parsed };
 };
 
-export { uploadResumeService };
+/**
+ * getAnalysesByUser
+ *
+ * Returns all Analysis documents belonging to the authenticated user,
+ * sorted newest first. Used by the Dashboard to display the user's history.
+ *
+ * @param {string} clerkId - Authenticated user's Clerk ID
+ * @returns {Promise<Array>} Array of Analysis documents (lean)
+ */
+const getAnalysesByUser = async (clerkId) => {
+  return Analysis
+    .find({ clerkId })
+    .sort({ createdAt: -1 })
+    .select(
+      "originalFileName status processingStatus candidateName selectedRole matchPercentage createdAt"
+    )
+    .lean();
+};
+
+export { uploadResumeService, getAnalysesByUser };

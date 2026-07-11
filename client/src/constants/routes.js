@@ -14,11 +14,14 @@
  */
 export const ROUTES = {
   HOME:      "/",
+  SIGN_IN:   "/sign-in",
+  SIGN_UP:   "/sign-up",
   UPLOAD:    "/upload",
   DASHBOARD: "/dashboard",
   ANALYSIS:  "/analysis/:id",  // React Router pattern — do NOT use in navigate()
   NOT_FOUND: "*",
 };
+
 
 /**
  * buildAnalysisPath

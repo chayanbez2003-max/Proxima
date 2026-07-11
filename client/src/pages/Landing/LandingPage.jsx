@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import MainLayout from "../../components/layout/MainLayout.jsx";
 import { ROUTES } from "../../constants/routes.js";
 import { APP_CONFIG } from "../../constants/appConfig.js";
@@ -70,17 +71,43 @@ const LandingPage = () => {
 
           {/* CTA */}
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <Link
-              to={ROUTES.UPLOAD}
-              className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
-            >
-              Analyze My Resume
-              <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
+            {/* Signed IN → go straight to upload */}
+            <SignedIn>
+              <Link
+                to={ROUTES.UPLOAD}
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
+              >
+                Analyze My Resume
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+              <Link
+                to={ROUTES.DASHBOARD}
+                className="text-sm text-white/40 hover:text-white/70 transition-colors underline underline-offset-2"
+              >
+                View my dashboard
+              </Link>
+            </SignedIn>
 
-            <span className="text-white/30 text-sm">Free · No sign-up required</span>
+            {/* Signed OUT → create account */}
+            <SignedOut>
+              <Link
+                to={ROUTES.SIGN_UP}
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
+              >
+                Get Started Free
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+              <Link
+                to={ROUTES.SIGN_IN}
+                className="text-sm text-white/40 hover:text-white/70 transition-colors"
+              >
+                Already have an account? <span className="underline underline-offset-2">Sign in</span>
+              </Link>
+            </SignedOut>
           </motion.div>
 
           {/* Feature pills */}
