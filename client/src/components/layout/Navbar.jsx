@@ -38,6 +38,16 @@ const Navbar = () => {
         {/* Nav links */}
         <nav className="flex items-center gap-2">
 
+          {/* ── Always visible ─────────────────────────────── */}
+          {pathname !== ROUTES.WHY_PROXIMA && (
+            <Link
+              to={ROUTES.WHY_PROXIMA}
+              className="px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              Why Proxima?
+            </Link>
+          )}
+
           {/* ── Signed In ─────────────────────────────────── */}
           <SignedIn>
             {pathname !== ROUTES.DASHBOARD && (

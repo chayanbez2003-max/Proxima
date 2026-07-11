@@ -123,6 +123,16 @@ const LandingPage = () => {
               )
             )}
           </motion.div>
+
+          {/* Why Proxima? link */}
+          <motion.div variants={itemVariants} className="flex justify-center pt-1">
+            <Link
+              to={ROUTES.WHY_PROXIMA}
+              className="text-sm text-white/35 hover:text-indigo-400 transition-colors underline underline-offset-4 decoration-white/15 hover:decoration-indigo-400/50"
+            >
+              Why Proxima instead of ChatGPT? →
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
     </MainLayout>

@@ -1,13 +1,14 @@
 import CareerIntelligencePage from "../pages/CareerIntelligence/CareerIntelligencePage.jsx";
 import { Routes, Route } from "react-router-dom";
 import { SignIn, SignUp } from "@clerk/clerk-react";
-import LandingPage   from "../pages/Landing/LandingPage.jsx";
-import UploadPage    from "../pages/Upload/UploadPage.jsx";
-import AnalysisPage  from "../pages/Analysis/AnalysisPage.jsx";
-import DashboardPage from "../pages/Dashboard/DashboardPage.jsx";
-import NotFoundPage  from "../pages/NotFound/NotFoundPage.jsx";
-import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
-import { ROUTES }    from "../constants/routes.js";
+import LandingPage      from "../pages/Landing/LandingPage.jsx";
+import UploadPage       from "../pages/Upload/UploadPage.jsx";
+import AnalysisPage     from "../pages/Analysis/AnalysisPage.jsx";
+import DashboardPage    from "../pages/Dashboard/DashboardPage.jsx";
+import NotFoundPage     from "../pages/NotFound/NotFoundPage.jsx";
+import WhyProximaPage   from "../pages/WhyProxima/WhyProximaPage.jsx";
+import ProtectedRoute   from "../components/auth/ProtectedRoute.jsx";
+import { ROUTES }       from "../constants/routes.js";
 
 
 /**
@@ -84,6 +85,9 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* ── Public: Why Proxima marketing page ───────────── */}
+      <Route path={ROUTES.WHY_PROXIMA} element={<WhyProximaPage />} />
 
       {/* ── 404 ─────────────────────────────────────────────── */}
       <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />

@@ -20,6 +20,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   ANALYSIS:  "/analysis/:id",  // React Router pattern — do NOT use in navigate()
   CAREER_INTELLIGENCE: "/analysis/:id/career-intelligence",
+  WHY_PROXIMA: "/why-proxima",
   NOT_FOUND: "*",
 };
 
