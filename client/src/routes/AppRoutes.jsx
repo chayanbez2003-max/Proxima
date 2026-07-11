@@ -1,3 +1,4 @@
+import CareerIntelligencePage from "../pages/CareerIntelligence/CareerIntelligencePage.jsx";
 import { Routes, Route } from "react-router-dom";
 import { SignIn, SignUp } from "@clerk/clerk-react";
 import LandingPage   from "../pages/Landing/LandingPage.jsx";
@@ -7,6 +8,7 @@ import DashboardPage from "../pages/Dashboard/DashboardPage.jsx";
 import NotFoundPage  from "../pages/NotFound/NotFoundPage.jsx";
 import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
 import { ROUTES }    from "../constants/routes.js";
+
 
 /**
  * AppRoutes
@@ -70,6 +72,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AnalysisPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={ROUTES.CAREER_INTELLIGENCE}
+        element={
+          <ProtectedRoute>
+            <CareerIntelligencePage />
           </ProtectedRoute>
         }
       />

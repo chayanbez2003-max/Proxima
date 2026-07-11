@@ -149,6 +149,27 @@ const useAnalysis = (analysisId) => {
     }
   }, [analysisId, selectedRole]);
 
+  const handleMatchForRole = useCallback(async (role) => {
+  if (!role) {
+    setMatchError("Please select a target job role.");
+    return;
+  }
+
+  setSelectedRole(role);
+  setIsMatching(true);
+  setMatchError(null);
+  setMatchResult(null);
+
+  try {
+    const data = await matchSkillsService(analysisId, role);
+    setMatchResult(data);
+  } catch (err) {
+    setMatchError(err.message || "Skill gap analysis failed. Please try again.");
+  } finally {
+    setIsMatching(false);
+  }
+}, [analysisId]);
+
   const resetMatch = useCallback(() => {
     setMatchResult(null);
     setMatchError(null);
@@ -192,6 +213,7 @@ const useAnalysis = (analysisId) => {
     matchResult,
     matchError,
     handleMatch,
+    handleMatchForRole,
     resetMatch,
   };
 };
