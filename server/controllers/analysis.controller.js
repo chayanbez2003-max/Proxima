@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse }  from "../utils/ApiResponse.js";
 import { ApiError }     from "../utils/ApiError.js";
+import { getAuth }      from "@clerk/express";
 import { uploadResumeService, getAnalysesByUser } from "../services/analysis/analysis.service.js";
 import { runSkillGapAnalysis, getJobRoles as fetchJobRoles } from "../services/matcher/careerIntelligence.service.js";
 import Analysis from "../models/Analysis.model.js";
@@ -22,8 +23,8 @@ const uploadResume = asyncHandler(async (req, res) => {
     throw new ApiError(400, "No file received. Please upload a PDF resume.");
   }
 
-  // M-Auth: req.auth is populated by clerkMiddleware + requireAuth
-  const clerkId = req.auth?.userId;
+  // M-Auth: getAuth(req) is the @clerk/express v2 API — req.auth is a function, not an object
+  const clerkId = getAuth(req).userId;
   if (!clerkId) {
     throw new ApiError(401, "Unauthorized. Please sign in to upload a resume.");
   }
@@ -65,7 +66,7 @@ const uploadResume = asyncHandler(async (req, res) => {
  * Ownership check: ensures the document belongs to the requesting user.
  */
 const getAnalysis = asyncHandler(async (req, res) => {
-  const clerkId  = req.auth?.userId;
+  const clerkId  = getAuth(req).userId;
   const analysis = await Analysis.findById(req.params.id);
 
   if (!analysis) {
@@ -92,7 +93,7 @@ const getAnalysis = asyncHandler(async (req, res) => {
  */
 const matchSkills = asyncHandler(async (req, res) => {
   const { analysisId, selectedRole } = req.body;
-  const clerkId = req.auth?.userId;
+  const clerkId = getAuth(req).userId;
 
   if (!analysisId) {
     throw new ApiError(400, "analysisId is required.");
@@ -142,7 +143,7 @@ const getJobRoles = asyncHandler(async (req, res) => {
  * Used by the Dashboard to show the user's upload history.
  */
 const getUserAnalyses = asyncHandler(async (req, res) => {
-  const clerkId = req.auth?.userId;
+  const clerkId = getAuth(req).userId;
   if (!clerkId) {
     throw new ApiError(401, "Unauthorized.");
   }
