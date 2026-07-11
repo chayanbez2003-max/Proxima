@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MainLayout from "../../components/layout/MainLayout.jsx";
-import { ROUTES, buildAnalysisPath } from "../../constants/routes.js";
+import {ROUTES,buildAnalysisPath,buildSavedCareerReportPath,} from "../../constants/routes.js";
 import axiosInstance from "../../api/axiosInstance.js";
+import { getUserCareerReportsService } from "../../api/careerReport.api.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -117,6 +118,60 @@ const AnalysisCard = ({ analysis, index }) => {
   );
 };
 
+const CareerReportCard = ({ report, index }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.06 }}
+    >
+      <Link
+        to={buildSavedCareerReportPath(report._id)}
+        className="group block rounded-2xl border border-violet-500/10 bg-violet-500/[0.04] hover:bg-violet-500/[0.08] hover:border-violet-500/20 backdrop-blur-sm p-5 transition-all"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <p className="text-sm font-semibold text-white truncate">
+              {report.targetRole} Career Report
+            </p>
+
+            <p className="text-xs text-white/30">
+              Saved on {fmt(report.createdAt)}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <span className="text-xs text-emerald-300">
+                Match: {report.matchPercentage ?? 0}%
+              </span>
+
+              <span className="text-xs text-violet-300">
+                Readiness: {report.readinessScore ?? 0}%
+              </span>
+            </div>
+          </div>
+
+          <div className="flex-shrink-0 flex items-center gap-2 text-xs text-violet-300 group-hover:text-violet-200 transition-colors">
+            View Report
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+};
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 /**
@@ -129,9 +184,10 @@ const AnalysisCard = ({ analysis, index }) => {
  */
 const DashboardPage = () => {
   const { user } = useUser();
-  const [analyses,   setAnalyses]  = useState([]);
-  const [isLoading,  setIsLoading] = useState(true);
-  const [error,      setError]     = useState(null);
+  const [analyses, setAnalyses] = useState([]);
+  const [careerReports, setCareerReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -140,8 +196,15 @@ const DashboardPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await axiosInstance.get("/analysis/user");
-        if (!cancelled) setAnalyses(res.data.data ?? []);
+        const [analysisRes, reportsRes] = await Promise.all([
+  axiosInstance.get("/analysis/user"),
+  getUserCareerReportsService(),
+]);
+
+if (!cancelled) {
+  setAnalyses(analysisRes.data.data ?? []);
+  setCareerReports(reportsRes.reports ?? []);
+}
       } catch (err) {
         if (!cancelled) setError(err.message || "Failed to load your analyses.");
       } finally {
@@ -221,16 +284,42 @@ const DashboardPage = () => {
                 animate={{ opacity: 1 }}
                 className="space-y-3"
               >
-                {/* Summary row */}
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs text-white/30">
+                {/* Previous Career Reports */}
+              {careerReports.length > 0 && (
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-sm font-semibold text-white">
+                        Previous Career Reports
+                      </h2>
+                      <p className="text-xs text-white/30 mt-1">
+                        {careerReports.length} saved{" "}
+                        {careerReports.length === 1 ? "report" : "reports"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {careerReports.map((report, i) => (
+                    <CareerReportCard key={report._id} report={report} index={i} />
+                  ))}
+                </div>
+              )}
+
+              {/* Resume Analyses */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-white">
+                    Resume Analyses
+                  </h2>
+                  <p className="text-xs text-white/30 mt-1">
                     {analyses.length} {analyses.length === 1 ? "analysis" : "analyses"}
                   </p>
                 </div>
+              </div>
 
-                {analyses.map((analysis, i) => (
-                  <AnalysisCard key={analysis._id} analysis={analysis} index={i} />
-                ))}
+              {analyses.map((analysis, i) => (
+                <AnalysisCard key={analysis._id} analysis={analysis} index={i} />
+              ))}
               </motion.div>
             )}
           </AnimatePresence>

@@ -21,6 +21,7 @@ export const ROUTES = {
   ANALYSIS:  "/analysis/:id",  // React Router pattern — do NOT use in navigate()
   CAREER_INTELLIGENCE: "/analysis/:id/career-intelligence",
   WHY_PROXIMA: "/why-proxima",
+  SAVED_CAREER_REPORT: "/career-reports/:reportId",
   NOT_FOUND: "*",
 };
 
@@ -35,3 +36,6 @@ export const buildAnalysisPath = (id) => `/analysis/${id}`;
 
 export const buildCareerIntelligencePath = (id, role) =>
   `/analysis/${id}/career-intelligence?role=${encodeURIComponent(role)}`;
+
+export const buildSavedCareerReportPath = (reportId) =>
+  `/career-reports/${reportId}`;

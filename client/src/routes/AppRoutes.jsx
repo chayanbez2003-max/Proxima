@@ -1,14 +1,19 @@
 import CareerIntelligencePage from "../pages/CareerIntelligence/CareerIntelligencePage.jsx";
 import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { SignIn, SignUp } from "@clerk/clerk-react";
-import LandingPage      from "../pages/Landing/LandingPage.jsx";
-import UploadPage       from "../pages/Upload/UploadPage.jsx";
-import AnalysisPage     from "../pages/Analysis/AnalysisPage.jsx";
-import DashboardPage    from "../pages/Dashboard/DashboardPage.jsx";
-import NotFoundPage     from "../pages/NotFound/NotFoundPage.jsx";
-import WhyProximaPage   from "../pages/WhyProxima/WhyProximaPage.jsx";
-import ProtectedRoute   from "../components/auth/ProtectedRoute.jsx";
-import { ROUTES }       from "../constants/routes.js";
+
+import LandingPage from "../pages/Landing/LandingPage.jsx";
+import UploadPage from "../pages/Upload/UploadPage.jsx";
+import AnalysisPage from "../pages/Analysis/AnalysisPage.jsx";
+import DashboardPage from "../pages/Dashboard/DashboardPage.jsx";
+import CareerIntelligencePage from "../pages/CareerIntelligence/CareerIntelligencePage.jsx";
+import SavedCareerReportPage from "../pages/SavedCareerReport/SavedCareerReportPage.jsx";
+import WhyProximaPage from "../pages/WhyProxima/WhyProximaPage.jsx";
+import NotFoundPage from "../pages/NotFound/NotFoundPage.jsx";
+
+import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
+import { ROUTES } from "../constants/routes.js";
 
 
 /**
@@ -73,6 +78,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AnalysisPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={ROUTES.SAVED_CAREER_REPORT}
+        element={
+          <ProtectedRoute>
+            <SavedCareerReportPage />
           </ProtectedRoute>
         }
       />

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import MainLayout from "../../components/layout/MainLayout.jsx";
 import SkillGapCard from "../../components/upload/SkillGapCard.jsx";
@@ -6,12 +6,18 @@ import { useAnalysis } from "../../hooks/useAnalysis.js";
 import { buildAnalysisPath } from "../../constants/routes.js";
 import PlacementReadinessCard from "../../components/career/PlacementReadinessCard.jsx";
 import LearningPathCard from "../../components/career/LearningPathCard.jsx";
+import { saveCareerReportService } from "../../api/careerReport.api.js";
 
 const CareerIntelligencePage = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
 
   const selectedRoleFromUrl = searchParams.get("role") || "";
+
+  const hasSavedReportRef = useRef(false);
+  const [saveStatus, setSaveStatus] = useState("idle");
+  const [savedReportId, setSavedReportId] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const {
     isFetching,
@@ -27,6 +33,35 @@ const CareerIntelligencePage = () => {
       handleMatchForRole(selectedRoleFromUrl);
     }
   }, [selectedRoleFromUrl, handleMatchForRole]);
+
+  useEffect(() => {
+  if (!matchResult || !selectedRoleFromUrl || hasSavedReportRef.current) {
+    return;
+  }
+
+  const saveReport = async () => {
+    hasSavedReportRef.current = true;
+    setSaveStatus("saving");
+    setSaveError(null);
+
+    try {
+      const data = await saveCareerReportService({
+        analysisId: id,
+        targetRole: selectedRoleFromUrl,
+        reportData: matchResult,
+      });
+
+      setSavedReportId(data?.report?._id || null);
+      setSaveStatus("saved");
+    } catch (error) {
+      hasSavedReportRef.current = false;
+      setSaveStatus("error");
+      setSaveError(error.message || "Failed to save report.");
+    }
+  };
+
+  saveReport();
+}, [matchResult, selectedRoleFromUrl, id]);
 
   return (
     <MainLayout>
@@ -50,6 +85,27 @@ const CareerIntelligencePage = () => {
                 {selectedRoleFromUrl || "No role selected"}
               </span>
             </p>
+
+            {saveStatus === "saving" && (
+  <p className="text-xs text-yellow-300 mt-2">
+    Saving report to MongoDB and AWS S3...
+  </p>
+)}
+
+{saveStatus === "saved" && (
+  <p className="text-xs text-emerald-300 mt-2">
+    Report saved successfully.
+    {savedReportId && (
+      <span className="text-white/30"> ID: {savedReportId}</span>
+    )}
+  </p>
+)}
+
+{saveStatus === "error" && (
+  <p className="text-xs text-red-300 mt-2">
+    {saveError}
+  </p>
+)}
           </div>
 
           {isFetching && (
