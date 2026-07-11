@@ -1,5 +1,3 @@
-import CareerIntelligencePage from "../pages/CareerIntelligence/CareerIntelligencePage.jsx";
-import { Routes, Route } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import { SignIn, SignUp } from "@clerk/clerk-react";
 
