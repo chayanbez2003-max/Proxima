@@ -1,26 +1,25 @@
-import { clerkMiddleware, requireAuth } from "@clerk/express";
+import { clerkMiddleware, getAuth } from "@clerk/express";
 
 /**
- * clerkAuthMiddleware
- *
- * Mounts the Clerk session verification middleware globally.
- * This adds `req.auth` to every request (with clerkUserId, sessionId, etc.)
- * It does NOT block unauthenticated requests on its own — it only validates
- * the session token IF one is present.
- *
- * Used once in app.js, before all routes.
+ * Adds Clerk auth data to req.
+ * This should be mounted globally in app.js.
  */
 export const clerkAuthMiddleware = clerkMiddleware();
 
 /**
- * requireAuthMiddleware
- *
- * Blocks unauthenticated access to a route.
- * Returns 401 if no valid Clerk session token is found.
- *
- * Usage in routes:
- *   router.post("/resume", requireAuthMiddleware, uploadResumeMiddleware, uploadResume);
- *
- * req.auth.userId is the authenticated user's Clerk ID after this middleware runs.
+ * API-friendly auth middleware.
+ * Instead of redirecting, it returns JSON 401 if user is not logged in.
  */
-export { requireAuth as requireAuthMiddleware };
+export const requireAuthMiddleware = (req, res, next) => {
+  const auth = getAuth(req);
+
+  if (!auth?.userId) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized. Please sign in first.",
+    });
+  }
+
+  req.auth = auth;
+  next();
+};
