@@ -13,7 +13,7 @@ import axios from "axios";
  */
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
-  timeout: 30000, // 30 seconds — generous for file uploads
+  timeout: 30000, // 30 second — generous for file uploads
   headers: {
     "Content-Type": "application/json",
   },

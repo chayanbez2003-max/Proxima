@@ -19,6 +19,7 @@ export const ROUTES = {
   UPLOAD:    "/upload",
   DASHBOARD: "/dashboard",
   ANALYSIS:  "/analysis/:id",  // React Router pattern — do NOT use in navigate()
+  CAREER_INTELLIGENCE: "/analysis/:id/career-intelligence",
   NOT_FOUND: "*",
 };
 
@@ -30,3 +31,6 @@ export const ROUTES = {
  * @returns {string}  e.g. "/analysis/64f2a..."
  */
 export const buildAnalysisPath = (id) => `/analysis/${id}`;
+
+export const buildCareerIntelligencePath = (id, role) =>
+  `/analysis/${id}/career-intelligence?role=${encodeURIComponent(role)}`;
