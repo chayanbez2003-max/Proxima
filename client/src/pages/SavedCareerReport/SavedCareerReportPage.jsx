@@ -6,6 +6,7 @@ import PlacementReadinessCard from "../../components/career/PlacementReadinessCa
 import LearningPathCard from "../../components/career/LearningPathCard.jsx";
 import { getCareerReportByIdService } from "../../api/careerReport.api.js";
 import { ROUTES } from "../../constants/routes.js";
+import LearningProgressTracker from "../../components/career/LearningProgressTracker.jsx";
 
 const SavedCareerReportPage = () => {
   const { reportId } = useParams();
@@ -93,6 +94,7 @@ const SavedCareerReportPage = () => {
 
           {!isLoading && !error && matchResult && (
             <div className="space-y-6">
+              <LearningProgressTracker reportId={reportId} />
               <SkillGapCard matchResult={matchResult} />
               <PlacementReadinessCard matchResult={matchResult} />
               <LearningPathCard matchResult={matchResult} />
