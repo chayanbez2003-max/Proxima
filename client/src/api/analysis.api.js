@@ -61,3 +61,8 @@ const matchSkillsApi = (analysisId, selectedRole) =>
   axiosInstance.post("/analysis/match", { analysisId, selectedRole });
 
 export { uploadResumeApi, getAnalysisApi, getJobRolesApi, matchSkillsApi };
+
+export const deleteAnalysisService = async (analysisId) => {
+  const response = await axiosInstance.delete(`/analysis/${analysisId}`);
+  return response.data;
+};

@@ -1,4 +1,8 @@
-import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { s3Client, S3_BUCKET_NAME } from "../config/s3.js";
 
 const streamToString = async (stream) => {
@@ -47,4 +51,21 @@ export const getCareerReportFromS3 = async (key) => {
   const body = await streamToString(response.Body);
 
   return JSON.parse(body);
+};
+
+export const deleteCareerReportFromS3 = async (key) => {
+  if (!S3_BUCKET_NAME) {
+    throw new Error("AWS_S3_BUCKET_NAME is missing in environment variables");
+  }
+
+  if (!key) {
+    return;
+  }
+
+  const command = new DeleteObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: key,
+  });
+
+  await s3Client.send(command);
 };

@@ -4,6 +4,9 @@ import { ApiError }     from "../utils/ApiError.js";
 import { uploadResumeService, getAnalysesByUser } from "../services/analysis/analysis.service.js";
 import { runSkillGapAnalysis, getJobRoles as fetchJobRoles } from "../services/matcher/careerIntelligence.service.js";
 import Analysis from "../models/Analysis.model.js";
+import CareerReport from "../models/CareerReport.model.js";
+import LearningProgress from "../models/LearningProgress.model.js";
+import { deleteCareerReportFromS3 } from "../services/s3Report.service.js";
 
 /**
  * uploadResume
@@ -154,4 +157,56 @@ const getUserAnalyses = asyncHandler(async (req, res) => {
   );
 });
 
-export { uploadResume, getAnalysis, matchSkills, getJobRoles, getUserAnalyses };
+const deleteAnalysisById = asyncHandler(async (req, res) => {
+  const clerkId = req.auth?.userId;
+  const { id } = req.params;
+
+  const analysis = await Analysis.findById(id);
+
+  if (!analysis) {
+    throw new ApiError(404, "Analysis not found.");
+  }
+
+  if (analysis.clerkId !== clerkId) {
+    throw new ApiError(403, "You do not have permission to delete this analysis.");
+  }
+
+  const relatedReports = await CareerReport.find({
+    userId: clerkId,
+    analysisId: analysis._id,
+  });
+
+  await Promise.all(
+    relatedReports.map((report) => deleteCareerReportFromS3(report.s3Key))
+  );
+
+  const reportIds = relatedReports.map((report) => report._id);
+
+  await LearningProgress.deleteMany({
+    userId: clerkId,
+    reportId: { $in: reportIds },
+  });
+
+  await CareerReport.deleteMany({
+    userId: clerkId,
+    analysisId: analysis._id,
+  });
+
+  await Analysis.deleteOne({
+    _id: analysis._id,
+    clerkId,
+  });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        deletedAnalysisId: analysis._id,
+        deletedCareerReports: relatedReports.length,
+      },
+      "Analysis and related career reports deleted successfully."
+    )
+  );
+});
+
+export { uploadResume, getAnalysis, matchSkills, getJobRoles, getUserAnalyses, deleteAnalysisById};

@@ -5,7 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import MainLayout from "../../components/layout/MainLayout.jsx";
 import {ROUTES,buildAnalysisPath,buildSavedCareerReportPath,} from "../../constants/routes.js";
 import axiosInstance from "../../api/axiosInstance.js";
-import { getUserCareerReportsService } from "../../api/careerReport.api.js";
+import { deleteAnalysisService } from "../../api/analysis.api.js";
+import {
+  getUserCareerReportsService,
+  deleteCareerReportService,
+} from "../../api/careerReport.api.js";
+
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -53,104 +58,152 @@ const EmptyState = () => (
   </motion.div>
 );
 
-const AnalysisCard = ({ analysis, index }) => {
+const AnalysisCard = ({
+  analysis,
+  index,
+  onDelete,
+  deletingAnalysisId,
+}) => {
   const cfg = statusConfig[analysis.status] ?? statusConfig.uploaded;
+  const isDeleting = deletingAnalysisId === analysis._id;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.06 }}
+      className="rounded-2xl border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10 backdrop-blur-sm p-5 transition-all"
     >
-      <Link
-        to={buildAnalysisPath(analysis._id)}
-        className="group block rounded-2xl border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10 backdrop-blur-sm p-5 transition-all"
-      >
-        <div className="flex items-start justify-between gap-4">
-          {/* Left */}
-          <div className="flex-1 min-w-0 space-y-1.5">
-            <p className="text-sm font-semibold text-white truncate">
-              {analysis.candidateName || analysis.originalFileName}
-            </p>
-            {analysis.originalFileName && analysis.candidateName && (
-              <p className="text-xs text-white/30 truncate">{analysis.originalFileName}</p>
-            )}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              {/* Status pill */}
-              <span className={`flex items-center gap-1.5 text-xs font-medium ${cfg.color}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                {cfg.label}
-              </span>
-              {/* Selected role */}
-              {analysis.selectedRole && (
-                <span className="text-xs text-white/30">
-                  {analysis.selectedRole}
-                </span>
-              )}
-              {/* Date */}
-              <span className="text-xs text-white/20">{fmt(analysis.createdAt)}</span>
-            </div>
-          </div>
+      <div className="flex items-start justify-between gap-4">
+        <Link
+          to={buildAnalysisPath(analysis._id)}
+          className="group flex-1 min-w-0 space-y-1.5"
+        >
+          <p className="text-sm font-semibold text-white truncate">
+            {analysis.candidateName || analysis.originalFileName}
+          </p>
 
-          {/* Right — match % badge */}
-          <div className="flex-shrink-0 flex flex-col items-end gap-1">
-            {analysis.matchPercentage !== null && analysis.matchPercentage !== undefined ? (
-              <div className="flex flex-col items-center px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-                <span className="text-lg font-bold text-indigo-300">{analysis.matchPercentage}%</span>
-                <span className="text-[10px] text-indigo-400/70 uppercase tracking-widest">Match</span>
-              </div>
-            ) : (
-              <div className="px-3 py-2 rounded-xl border border-dashed border-white/10 text-xs text-white/20 text-center">
-                Not<br />analysed
-              </div>
+          {analysis.originalFileName && analysis.candidateName && (
+            <p className="text-xs text-white/30 truncate">
+              {analysis.originalFileName}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <span className={`flex items-center gap-1.5 text-xs font-medium ${cfg.color}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+              {cfg.label}
+            </span>
+
+            {analysis.selectedRole && (
+              <span className="text-xs text-white/30">
+                {analysis.selectedRole}
+              </span>
             )}
-            {/* Chevron */}
-            <svg
-              className="w-4 h-4 text-white/20 group-hover:text-white/40 transition-colors mt-1"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+
+            <span className="text-xs text-white/20">
+              {fmt(analysis.createdAt)}
+            </span>
           </div>
+        </Link>
+
+        <div className="flex-shrink-0 flex flex-col items-end gap-2">
+          {analysis.matchPercentage !== null &&
+          analysis.matchPercentage !== undefined ? (
+            <div className="flex flex-col items-center px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+              <span className="text-lg font-bold text-indigo-300">
+                {analysis.matchPercentage}%
+              </span>
+              <span className="text-[10px] text-indigo-400/70 uppercase tracking-widest">
+                Match
+              </span>
+            </div>
+          ) : (
+            <div className="px-3 py-2 rounded-xl border border-dashed border-white/10 text-xs text-white/20 text-center">
+              Not
+              <br />
+              analysed
+            </div>
+          )}
+
+          <Link
+            to={buildAnalysisPath(analysis._id)}
+            className="flex items-center gap-1 text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
+          >
+            View
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => onDelete(analysis._id)}
+            disabled={isDeleting}
+            className="text-xs text-red-300 hover:text-red-200 disabled:opacity-50 transition-colors"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 };
 
-const CareerReportCard = ({ report, index }) => {
+const CareerReportCard = ({
+  report,
+  index,
+  onDelete,
+  deletingReportId,
+}) => {
+  const isDeleting = deletingReportId === report._id;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.06 }}
+      className="rounded-2xl border border-violet-500/10 bg-violet-500/[0.04] hover:bg-violet-500/[0.08] hover:border-violet-500/20 backdrop-blur-sm p-5 transition-all"
     >
-      <Link
-        to={buildSavedCareerReportPath(report._id)}
-        className="group block rounded-2xl border border-violet-500/10 bg-violet-500/[0.04] hover:bg-violet-500/[0.08] hover:border-violet-500/20 backdrop-blur-sm p-5 transition-all"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0 space-y-1.5">
-            <p className="text-sm font-semibold text-white truncate">
-              {report.targetRole} Career Report
-            </p>
+      <div className="flex items-start justify-between gap-4">
+        <Link
+          to={buildSavedCareerReportPath(report._id)}
+          className="group flex-1 min-w-0 space-y-1.5"
+        >
+          <p className="text-sm font-semibold text-white truncate">
+            {report.targetRole} Career Report
+          </p>
 
-            <p className="text-xs text-white/30">
-              Saved on {fmt(report.createdAt)}
-            </p>
+          <p className="text-xs text-white/30">
+            Saved on {fmt(report.createdAt)}
+          </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <span className="text-xs text-emerald-300">
-                Match: {report.matchPercentage ?? 0}%
-              </span>
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <span className="text-xs text-emerald-300">
+              Match: {report.matchPercentage ?? 0}%
+            </span>
 
-              <span className="text-xs text-violet-300">
-                Readiness: {report.readinessScore ?? 0}%
-              </span>
-            </div>
+            <span className="text-xs text-violet-300">
+              Readiness: {report.readinessScore ?? 0}%
+            </span>
           </div>
+        </Link>
 
-          <div className="flex-shrink-0 flex items-center gap-2 text-xs text-violet-300 group-hover:text-violet-200 transition-colors">
+        <div className="flex flex-col items-end gap-2">
+          <Link
+            to={buildSavedCareerReportPath(report._id)}
+            className="flex items-center gap-2 text-xs text-violet-300 hover:text-violet-200 transition-colors"
+          >
             View Report
             <svg
               className="w-4 h-4"
@@ -165,9 +218,18 @@ const CareerReportCard = ({ report, index }) => {
                 d="M9 5l7 7-7 7"
               />
             </svg>
-          </div>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => onDelete(report._id)}
+            disabled={isDeleting}
+            className="text-xs text-red-300 hover:text-red-200 disabled:opacity-50 transition-colors"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 };
@@ -188,6 +250,8 @@ const DashboardPage = () => {
   const [careerReports, setCareerReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingReportId, setDeletingReportId] = useState(null);
+  const [deletingAnalysisId, setDeletingAnalysisId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -216,6 +280,55 @@ if (!cancelled) {
     return () => { cancelled = true; };
   }, []);
 
+  const handleDeleteCareerReport = async (reportId) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this saved career report? This action cannot be undone."
+  );
+
+  if (!confirmed) return;
+
+  setDeletingReportId(reportId);
+  setError(null);
+
+  try {
+    await deleteCareerReportService(reportId);
+
+    setCareerReports((prevReports) =>
+      prevReports.filter((report) => report._id !== reportId)
+    );
+  } catch (err) {
+    setError(err.message || "Failed to delete career report.");
+  } finally {
+    setDeletingReportId(null);
+  }
+};
+
+const handleDeleteAnalysis = async (analysisId) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this resume analysis? This will also delete related career reports and learning progress. This action cannot be undone."
+  );
+
+  if (!confirmed) return;
+
+  setDeletingAnalysisId(analysisId);
+  setError(null);
+
+  try {
+    await deleteAnalysisService(analysisId);
+
+    setAnalyses((prevAnalyses) =>
+      prevAnalyses.filter((analysis) => analysis._id !== analysisId)
+    );
+
+    setCareerReports((prevReports) =>
+      prevReports.filter((report) => report.analysisId !== analysisId)
+    );
+  } catch (err) {
+    setError(err.message || "Failed to delete analysis.");
+  } finally {
+    setDeletingAnalysisId(null);
+  }
+};
   return (
     <MainLayout>
       <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
@@ -300,8 +413,14 @@ if (!cancelled) {
                   </div>
 
                   {careerReports.map((report, i) => (
-                    <CareerReportCard key={report._id} report={report} index={i} />
-                  ))}
+                  <CareerReportCard
+                    key={report._id}
+                    report={report}
+                    index={i}
+                    onDelete={handleDeleteCareerReport}
+                    deletingReportId={deletingReportId}
+                  />
+                ))}
                 </div>
               )}
 
@@ -318,7 +437,13 @@ if (!cancelled) {
               </div>
 
               {analyses.map((analysis, i) => (
-                <AnalysisCard key={analysis._id} analysis={analysis} index={i} />
+                <AnalysisCard
+                  key={analysis._id}
+                  analysis={analysis}
+                  index={i}
+                  onDelete={handleDeleteAnalysis}
+                  deletingAnalysisId={deletingAnalysisId}
+                />
               ))}
               </motion.div>
             )}

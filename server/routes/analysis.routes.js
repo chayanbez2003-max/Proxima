@@ -5,6 +5,7 @@ import {
   matchSkills,
   getJobRoles,
   getUserAnalyses,
+  deleteAnalysisById,
 } from "../controllers/analysis.controller.js";
 import { uploadResumeMiddleware }  from "../middleware/upload.middleware.js";
 import { requireAuthMiddleware }   from "../middleware/auth.middleware.js";
@@ -48,5 +49,6 @@ router.post("/match", requireAuthMiddleware, matchSkills);
  * PROTECTED — ownership verified inside controller.
  */
 router.get("/:id", requireAuthMiddleware, getAnalysis);
+router.delete("/:id", requireAuthMiddleware, deleteAnalysisById);
 
 export default router;

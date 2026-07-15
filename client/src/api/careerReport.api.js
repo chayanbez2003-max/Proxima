@@ -23,3 +23,8 @@ export const getCareerReportByIdService = async (reportId) => {
   const response = await api.get(`/career-reports/${reportId}`);
   return response.data;
 };
+
+export const deleteCareerReportService = async (reportId) => {
+  const response = await api.delete(`/career-reports/${reportId}`);
+  return response.data;
+};

@@ -3,7 +3,9 @@ import CareerReport from "../models/CareerReport.model.js";
 import {
   uploadCareerReportToS3,
   getCareerReportFromS3,
+  deleteCareerReportFromS3,
 } from "../services/s3Report.service.js";
+import LearningProgress from "../models/LearningProgress.model.js";
 
 const calculateReadinessScore = (reportData = {}) => {
   const matchPercentage = Number(reportData.matchPercentage || 0);
@@ -148,6 +150,56 @@ export const getCareerReportById = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch career report.",
+    });
+  }
+};
+
+export const deleteCareerReportById = async (req, res) => {
+  try {
+    const userId = req.auth?.userId;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. Please sign in first.",
+      });
+    }
+
+    const report = await CareerReport.findOne({
+      _id: id,
+      userId,
+    });
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        message: "Career report not found.",
+      });
+    }
+
+    await deleteCareerReportFromS3(report.s3Key);
+
+    await LearningProgress.deleteOne({
+      userId,
+      reportId: report._id,
+    });
+
+    await CareerReport.deleteOne({
+      _id: report._id,
+      userId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Career report deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Career Report Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete career report.",
     });
   }
 };
